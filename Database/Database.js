@@ -6,7 +6,7 @@ const pool = mysql.createPool({
 
   //database is running on our PC so the host is local
   host: "localhost",
-  database: "blog",
+  database: "dbs_project",
   user: "root",
   password: "1234",
 });

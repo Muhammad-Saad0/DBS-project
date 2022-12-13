@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('includes/head', { title: 'Add new post' }) %>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600' rel='stylesheet' type='text/css'>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/user-signup.css">
+    <link rel="stylesheet" href="/styles/forms.css">
+    <%- include('includes/header') %>
+  </head>
+<body>
+    <main>
+        <div class="testbox">
+            <h1>Registration</h1>
+          
+            <form action="/signup-user" method ="POST">
+              <hr>
+              <label id="icon" for="name"><i class="icon-envelope "></i></label>
+              <input type="text" name="email" id="email" placeholder="Email" required />
+              <label id="icon" for="name"><i class="icon-user"></i></label>
+              <input type="text" name="name" id="name" placeholder="Name" required />
+              <label id="icon" for="name"><i class="icon-shield"></i></label>
+              <input type="password" name="password" id="password" placeholder="Password" required />
+              <div class="gender">
+                <input type="radio" value="Male" id="male" name="gender" checked />
+                <label for="male" class="radio" chec>Male</label>
+                <input type="radio" value="fe" id="female" name="gender" />
+                <label for="female" class="radio">Female</label>
+              </div>
+              <p>By clicking Register, you agree on our <a href="#">terms and condition</a>.</p>
+              <button>Register</button>
+            </form>
+ 
+            <% if(user_error=='U'){ %>
+                <div class="alert_error"><p>Username is Taken</p></div>
+            <% } %> 
+
+            <% if(email_error=='E'){ %>
+                <div class="alert_error"><p>Email is already Registered</p></div>
+            <% } %> 
+          </div>
+    </main>
+</body>
+</html>

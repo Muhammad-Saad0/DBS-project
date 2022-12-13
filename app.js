@@ -1,6 +1,9 @@
 const path = require('path');
 
 const express = require('express');
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const flash = require("connect-flash");
 
 const blogRoutes = require('./routes/blog');
 
@@ -12,6 +15,16 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true })); // Parse incoming request bodies
 app.use(express.static('public')); // Serve static files like CSS files
+
+// Set Cookie Parser, sessions and flash
+app.use(cookieParser("NotSoSecretStringForCookies"));
+app.use(session({
+  secret : "NotSoSecretStringForCookies",
+  cookie: { maxAge: 60000 },
+  resave: true,
+  saveUninitialized: true
+}));
+app.use(flash());
 
 app.use(blogRoutes);
 

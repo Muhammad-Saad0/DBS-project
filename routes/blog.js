@@ -3,6 +3,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
 const alert = require("alert");
+const bcrypt = require("bcryptjs")
 
 const db = require("../Database/Database");
 
@@ -16,20 +17,65 @@ router.get("/", async function(req, res){
         user_error:user_error});
 });
 
+
 router.get("/posts",async function(req, res){
     res.render("posts-list");
 });
 
 router.get("/new-post",function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
     res.render("create-post");
+});
+
+router.get("/login-user",function(req, res){
+    const error_status= req.flash("error_status")
+    res.render("user-login", {error_status:error_status});
+});
+
+router.post("/logout", function(req, res){
+    req.session.user = null;
+    return res.redirect("/login-user");
+});
+
+router.post("/login-user",async function(req, res){
+    const formData=req.body;
+    const data = [
+        formData.name,
+        formData.password,
+      ];
+      const [result] = await db.query("select * from user where USERNAME=\"" +
+    formData.name+"\"");
+    if(result.length===0){
+        console.log("check 1")
+        req.flash("error_status", "U");
+        return res.redirect("/login-user");
+    }
+
+    if(!await bcrypt.compare(formData.password, result[0].PASSWORD)){
+        console.log("check 2")
+        req.flash("error_status", "P");
+        return res.redirect("/login-user");
+    }
+    //just creating a variable for convenience
+    let existingUser = result[0]
+    req.session.user = {
+        id: existingUser.USER_ID,
+        email: existingUser.EMAIL
+    }
+    req.session.save(function(){
+        return res.redirect("/new-post");
+    })
 });
 
 router.post("/signup-user", async function (req, res) {
     const dataFromForm = req.body;
+    const hashedPassword = await bcrypt.hash(dataFromForm.password, 12);
     const data = [
       dataFromForm.email,
       dataFromForm.name,
-      dataFromForm.password,
+      hashedPassword,
       dataFromForm.gender,
     ];
      [result] = await db.query("select * from user where USERNAME=\"" +
@@ -47,6 +93,7 @@ router.post("/signup-user", async function (req, res) {
         res.redirect("/")
         return;
     }
+
     await db.query(
         "insert into user (EMAIL, USERNAME, PASSWORD, GENDER) values (?)",
         [data]

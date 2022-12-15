@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('includes/head', { title: 'Add new post' }) %>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600' rel='stylesheet' type='text/css'>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/user-shared.css">
+    <link rel="stylesheet" href="/styles/forms.css">
+    <link rel="stylesheet" href="/styles/user-login.css">
+    <%- include('includes/header') %>
+  </head>
+<body>
+    <main>
+        <div class="testbox">
+            <h1>Sign in</h1>
+          
+            <form action="/login-user" method ="POST">
+              <hr>
+              <label id="icon" for="name"><i class="icon-user"></i></label>
+              <input type="text" name="name" id="name" placeholder="UserName" required />
+              <label id="icon" for="name"><i class="icon-shield"></i></label>
+              <input type="password" name="password" id="password" placeholder="Password" required />
+              <button>Sign in</button>
+              <div class="spacing"></div>
+            </form>
+            <p><% error_status %> </p>
+            <% if(error_status=="U"){ %>
+                <div class="alert_error"><p>No Such username is registered</p></div>
+            <% } %> 
+
+            <% if(error_status=="P"){ %>
+                <div class="alert_error"><p>Credentials did not match</p></div>
+            <% } %> 
+          </div>
+    </main>
+</body>
+</html>

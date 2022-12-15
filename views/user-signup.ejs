@@ -5,7 +5,7 @@
     <%- include('includes/head', { title: 'Add new post' }) %>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600' rel='stylesheet' type='text/css'>
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
-    <link rel="stylesheet" href="/styles/user-signup.css">
+    <link rel="stylesheet" href="/styles/user-shared.css">
     <link rel="stylesheet" href="/styles/forms.css">
     <%- include('includes/header') %>
   </head>
@@ -31,7 +31,7 @@
               <p>By clicking Register, you agree on our <a href="#">terms and condition</a>.</p>
               <button>Register</button>
             </form>
- 
+
             <% if(user_error=='U'){ %>
                 <div class="alert_error"><p>Username is Taken</p></div>
             <% } %> 
@@ -39,6 +39,9 @@
             <% if(email_error=='E'){ %>
                 <div class="alert_error"><p>Email is already Registered</p></div>
             <% } %> 
+          </div>
+          <div>
+            <a href="/login-user">To sign in page</a>
           </div>
     </main>
 </body>

@@ -6,6 +6,7 @@ const alert = require("alert");
 const bcrypt = require("bcryptjs")
 
 const db = require("../Database/Database");
+const {isEmailValid} = require("../Utilities/Email")
 
 const router = express.Router();
 
@@ -78,6 +79,15 @@ router.post("/signup-user", async function (req, res) {
       hashedPassword,
       dataFromForm.gender,
     ];
+
+    let email = (dataFromForm.email).trim()
+    email = email.toLowerCase()
+    const {valid, reason, validators} = await isEmailValid(email);
+    if(!valid){
+        req.flash("email_error",'I')
+        return res.redirect("/")
+    };
+
      [result] = await db.query("select * from user where USERNAME=\"" +
     dataFromForm.name+"\"");
      if(result.length !=0){
@@ -86,12 +96,11 @@ router.post("/signup-user", async function (req, res) {
          return;
      } 
 
-    [result] = await db.query("select * from user where EMAIL=\"" +
+     [result] = await db.query("select * from user where EMAIL=\"" +
     dataFromForm.email+"\"");
     if(result.length != 0){
         req.flash("email_error",'E')
-        res.redirect("/")
-        return;
+        return res.redirect("/")
     }
 
     await db.query(

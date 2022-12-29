@@ -39,6 +39,10 @@
             <% if(email_error=='E'){ %>
                 <div class="alert_error"><p>Email is already Registered</p></div>
             <% } %> 
+
+            <% if(email_error=='I'){ %>
+              <div class="alert_error"><p>Invalid Email</p></div>
+          <% } %> 
           </div>
           <div>
             <a href="/login-user">To sign in page</a>

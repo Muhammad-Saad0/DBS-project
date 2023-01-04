@@ -41,3 +41,17 @@ input, textarea {
 .form-control {
   margin: 0.5rem 0;
 }
+
+#image-preview{
+  display: none;
+  width: 100px;
+  height: 100px;
+}
+
+
+#image-picker-container{
+  display: none;
+  text-align: justify;
+  width: 390px;
+  margin-bottom: 20px;
+}

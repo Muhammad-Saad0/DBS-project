@@ -4,14 +4,28 @@ const cookieParser = require("cookie-parser");
 const flash = require("connect-flash");
 const alert = require("alert");
 const bcrypt = require("bcryptjs")
+const Multer = require("multer");
 
 const db = require("../Database/Database");
 const {isEmailValid} = require("../Utilities/Email")
 
 const router = express.Router();
 
+//we creating this to configure multer storage options
+const storageConfig = Multer.diskStorage({
+    //cb is the callback function
+    destination: function (req, file, cb) {
+      cb(null, "images");
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + "-" + file.originalname);
+    },
+  });
+  
+  // in braces we tell multer where and how to store the file
+  const multer = Multer({ storage: storageConfig });
+
 router.get("/", async function(req, res){ 
-    // db.query("Whatever query")
     const user_error= req.flash("user_error")
     const email_error= req.flash("email_error") 
     res.render("user-signup", {email_error:email_error,
@@ -87,8 +101,7 @@ router.post("/signup-user", async function (req, res) {
         req.flash("email_error",'I')
         return res.redirect("/")
     };
-
-     [result] = await db.query("select * from user where USERNAME=\"" +
+    let [result] = await db.query("select * from user where USERNAME=\"" +
     dataFromForm.name+"\"");
      if(result.length !=0){
          req.flash("user_error",'U')
@@ -110,5 +123,36 @@ router.post("/signup-user", async function (req, res) {
         alert("SUCCESSFULLY REGISTERED")
         res.redirect("/posts");
   });
+
+  router.post("/add-post", multer.single("image"), async function(req, res){
+    const uploadedImage = req.file;
+    const postData = req.body;
+
+    if(uploadedImage){
+        const data = [
+            postData.title,
+            postData.content,
+            req.session.user.id,
+            uploadedImage.path
+        ];
+        await db.query(
+            "insert into photographic_posts (TITLE, POST_DESCRIPTION, USER_ID, IMG_PATH) values (?)",
+            [data]
+            );
+        }
+
+        else{
+            const data = [
+                postData.title,
+                postData.content,
+                req.session.user.id
+            ];
+            await db.query(
+                "insert into posts (TITLE, POST_DESCRIPTION, USER_ID) values (?)",
+                [data]
+                );
+            }
+            res.redirect("/new-post");
+        });
 
 module.exports = router;

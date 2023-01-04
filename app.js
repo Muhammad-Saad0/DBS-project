@@ -23,7 +23,7 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true })); // Parse incoming request bodies
-app.use(express.static('public')); // Serve static files like CSS files
+app.use(express.static(path.join(__dirname, 'public')))
 
 //Set Cookie Parser, sessions and flash
 app.use(cookieParser("NotSoSecretStringForCookies"));

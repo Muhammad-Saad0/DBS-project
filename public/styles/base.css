@@ -13,6 +13,64 @@ body {
   margin: 0;
 }
 
+.postpic{
+  width: 75px;
+  height: 75px;
+  padding: 0px;
+  margin: 0px;
+  border-radius: 5px;
+}
+
+.header {
+  overflow: hidden;
+  background-color: #3b5ab5;
+  padding: 10px 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 0px;
+}
+
+/* Style the header links */
+.header a {
+  float: left;
+  color: black;
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 18px;
+  line-height: 25px;
+  border-radius: 4px;
+}
+
+/* Style the logo link (notice that we set the same value of line-height and font-size to prevent the header to increase when the font gets bigger */
+.header a.logo {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+/* Style the active/current link*/
+.header a.active {
+  background-color: #3b5ab5;
+  color: white;
+}
+
+/* Float the link section to the right */
+.header-right {
+  float: right;
+}
+
+/* Add media queries for responsiveness - when the screen is 500px wide or less, stack the links on top of each other */
+@media screen and (max-width: 500px) {
+  .header a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
+  .header-right {
+    float: none;
+  }
+}
+
 main {
   width: 80%;
   margin: 3rem auto;
@@ -25,7 +83,7 @@ a {
 
 a:hover,
 a:active {
-  color:rgb(232, 90, 245);
+  color:rgb(221, 209, 222);
 }
 
 ul, ol {

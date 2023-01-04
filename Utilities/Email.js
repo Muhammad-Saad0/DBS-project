@@ -3,7 +3,9 @@ const router = express.Router();
 const emailValidator = require('deep-email-validator');
 
  async function isEmailValid(email) {
-  return emailValidator.validate(email)
+  return await emailValidator.validate(email)
 }
 
 module.exports = {isEmailValid};
+
+

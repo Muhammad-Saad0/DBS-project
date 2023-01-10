@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const emailValidator = require('deep-email-validator');
+const emailValidator = require('email-validator');
 
  async function isEmailValid(email) {
   return await emailValidator.validate(email)

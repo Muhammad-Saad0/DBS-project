@@ -3,17 +3,19 @@
 
 <head>
   <%- include('includes/head', { title: 'Add new post' }) %>
-  <link rel="stylesheet" href="/styles/forms.css">
+    <link rel="stylesheet" href="/styles/forms.css">
   <link rel="stylesheet" href="/styles/radio-buttons.css">
+  <link rel="stylesheet" href="/styles/create-post-styles.css">
   <script src="/scripts/create-post.js" defer></script>
 </head>
 
 <body>
   <%- include('includes/header') %>
   <main>
-    <h1>Add a new post</h1>
-    </div>
-    <form action="/add-post" method="POST" enctype="multipart/form-data">
+    <div class="flex-container">
+    <h1 class="heading">Add a new post</h1>
+    <form class="form" action="/add-post" method="POST" enctype="multipart/form-data">
+      <hr>
       <div class="form-control">
         <label for="title">Title</label>
         <input type="text" id="title" name="title" required>
@@ -35,9 +37,8 @@
              <span>Photographic</span>
           </label>
        </div>
-
       <div class="form-control" id="image-picker-container">
-        <img src="" alt="Your selected image here" id="image-preview"/>
+        <img class="post-img" src="" alt="Your selected image here" id="image-preview"/>
         <label for="image">User image</label>
         <input
           type="file"
@@ -48,9 +49,10 @@
       </div>
       <button class="btn">Add Post</button>
     </form>
-    <form action="/logout" method="POST">
+    <!-- <form action="/logout" method="POST">
       <button class="btn">Log out</button>
-    </form>
+    </form> -->
   </main>
+</div>
 </body>
 </html>

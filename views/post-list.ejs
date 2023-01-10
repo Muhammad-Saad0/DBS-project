@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Social Media Post UI Design</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js" defer></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" defer></script>
+	<link rel="stylesheet" type="text/css" href="/styles/post-list.css">
+	<link rel="stylesheet" type="text/css" href="/styles/overlays.css">
+	<link rel="stylesheet" type="text/css" href="/styles/profile-card.css">
+	<script src="/scripts/post-list.js" defer></script>
+</head>
+<body>
+	<section class="main-content">
+	<main>
+		
+		<div class="container">
+			<h1 class="text-center text-uppercase">Social Media Post</h1>
+			<br>
+			<br>
+		<% for (const post of posts) { %> <%- include ("includes/post-item",
+      	{post: post})%> 
+		<% } %>
+		</div>
+	</main>
+	<aside id="comment-popup" class="modal"></aside>
+	</section>
+	<div id="profile-card" class="fixed-top"></div>
+	<aside>
+		<div id="backdrop"></div>
+	</aside>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

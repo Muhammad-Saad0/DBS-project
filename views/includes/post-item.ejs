@@ -1,10 +1,67 @@
-<article class="post-item">
-  <h2>...</h2>
-  <p class="post-item-author">By ...</p>
-  <p>...</p>
-  <div class="post-actions">
-    <button class="btn btn-alt">Delete Post</button>
-    <a href="...">Edit Post</a>
-    <a class="btn" href="...">View Post</a>
+<div class="post-container">
+<div class="row">
+  <div class="col-sm-6 offset-sm-3">
+    <div class="post-block">
+      <div class="d-flex justify-content-between">
+        <div class="d-flex mb-3">
+          <div class="mr-2">
+            <% if(post.PROFILE_PIC) { %>
+              <a href="#!" class="text-dark"><img src="<%= post.PROFILE_PIC %> " alt="User" class="author-img"></a>
+              <% }else { %>
+                <a href="#!" class="text-dark"><img src="images\default-user-icon.png" alt="User" class="author-img"></a>
+              <% } %> 
+          </div>
+          <div>
+            <h5 class="mb-0"><a href="" class="text-dark user-details-btns" data-userid="<%= post.USER_ID%> "><%= post.USERNAME %> </a></h5>
+            <p class="mb-0 text-muted">5m</p>
+          </div>
+        </div>
+        <div class="post-block__user-options">
+          <a href="#!" id="triggerId" data-toggle="dropdown" aria-haspopup="true"
+              aria-expanded="false">
+                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
+            <a class="dropdown-item text-dark" href="#!"><i class="fa fa-pencil mr-1"></i>Edit</a>
+            <a class="dropdown-item text-danger" href="#!"><i class="fa fa-trash mr-1"></i>Delete</a>
+          </div>
+        </div>
+      </div>
+      <div class="post-block__content mb-2">
+        <h2><%= post.TITLE %> </h2>
+        <p><%= post.POST_DESCRIPTION %> </p>
+        <% if(post.image_url){ %>
+          <img src="<%= post.image_url %> " alt="Content img" class="img-container">
+        <% } %> 
+      </div>
+      <div class="mb-3">
+        <div class="d-flex">
+          <div class="d-flex">
+            <% if(post.LIKED_BY == loggedInUserId){ %>
+              <button class="fa fa-heart text-danger" data-postid="<%= post.POST_ID %>"
+                 data-userId="<%= loggedInUserId %> ">Like</button>
+            <% } else { %>
+              <button data-postId="<%= post.POST_ID %>"
+                data-userid="<%= loggedInUserId %> " class="fa fa-heart">Like</button>
+            <% } %> 
+            <a href="#!" class="text-dark comment-box" data-postId="<%= post.POST_ID %> "><span>Comment</span></a>
+        </div>
+      <div class="post-block__comments">
+        <!-- Comment Input -->
+        <form class="comment-form" data-postid="<%= post.POST_ID %>">
+        <div class="input-group mb-3">
+          <input type="text" id="comment-input-field<%= post.POST_ID %>"
+          class="form-control comment-field" placeholder="Add your comment" required>
+          <div class="input-group-append">
+              <button class="btn btn-primary"><i class="fa fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </form>
+      </div>
+    </div>
+    <hr>
+        <button class="text-dark view-comments-btn" data-postid="<%= post.POST_ID %> ">View Comments</button>
   </div>
-</article>
+</div>
+</div>
+</div>

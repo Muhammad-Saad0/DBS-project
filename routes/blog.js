@@ -15,7 +15,7 @@ const router = express.Router();
 const storageConfig = Multer.diskStorage({
     //cb is the callback function
     destination: function (req, file, cb) {
-      cb(null, "images");
+      cb(null, "public/images");
     },
     filename: function (req, file, cb) {
       cb(null, Date.now() + "-" + file.originalname);
@@ -48,6 +48,37 @@ router.get("/login-user",function(req, res){
     const error_status= req.flash("error_status")
     res.render("user-login", {error_status:error_status});
 });
+
+//-------------------------------------------------------------------//
+router.get("/post-list", async function(req, res){
+    const [result] = await db.query(`select P.POST_ID, P.POST_DESCRIPTION,
+    P.USER_ID, P.TITLE,P.DATE,pp.image_url,l.users_id as LIKED_BY,U.USERNAME,
+    D.PROFILE_PIC
+    from posts as p
+    left outer join photographic_posts as pp
+    on p.post_id = pp.posts_id
+    left outer join likes as l
+    on l.posts_id = p.post_id
+    inner join user as U on U.USER_ID = P.USER_ID
+    inner join user_details as D on D.USER_ID = P.USER_ID`)
+    res.render("post-list", {posts: result,
+    loggedInUserId: req.session.user.id});
+})
+
+router.get("/user-details/:id", async function(req, res){
+    const userId = req.params.id
+    const [result] = await db.query(`select U.USER_ID, U.EMAIL, U.USERNAME, U.GENDER,
+     D.PROFILE_PIC from user as U inner join user_details AS D on u.USER_ID = D.USER_ID WHERE U.USER_ID = ${userId}`)
+     res.json(result)
+})
+
+router.get("/show-comments/:id", async function(req, res){
+    const postId = req.params.id
+    const result = await db.query(`select C.TEXT, C.DATE, U.USERNAME, U.USER_ID, D.PROFILE_PIC FROM COMMENTS AS C 
+    INNER JOIN USER AS U ON C.USER_ID = U.USER_ID INNER JOIN user_details AS D ON C.USER_ID = D.USER_ID WHERE C.POST_ID =${postId}`)
+    console.log(result[0])
+    res.json(result)
+})
 
 router.post("/logout", function(req, res){
     req.session.user = null;
@@ -96,7 +127,7 @@ router.post("/signup-user", async function (req, res) {
 
     let email = (dataFromForm.email).trim()
     email = email.toLowerCase()
-    const {valid, reason, validators} = await isEmailValid(email);
+    const valid = await isEmailValid(email);
     if(!valid){
         req.flash("email_error",'I')
         return res.redirect("/")
@@ -125,34 +156,81 @@ router.post("/signup-user", async function (req, res) {
   });
 
   router.post("/add-post", multer.single("image"), async function(req, res){
-    const uploadedImage = req.file;
+    const uploadedImage = req.file.filename;
     const postData = req.body;
 
-    if(uploadedImage){
-        const data = [
-            postData.title,
-            postData.content,
-            req.session.user.id,
-            uploadedImage.path
-        ];
-        await db.query(
-            "insert into photographic_posts (TITLE, POST_DESCRIPTION, USER_ID, IMG_PATH) values (?)",
-            [data]
-            );
-        }
+    const data = [
+        postData.title,
+        postData.content,
+        req.session.user.id
+    ];
+    await db.query(
+        "insert into posts (TITLE, POST_DESCRIPTION, USER_ID) values (?)",
+        [data]
+        );
 
-        else{
-            const data = [
-                postData.title,
-                postData.content,
-                req.session.user.id
-            ];
+    if(uploadedImage){
+        const [result] = await db.query(
+            `select post_id
+            from posts
+            where user_id = 2
+            order by DATE DESC
+            limit 1`
+            );
+
+            const uploadedImagePath = "images//" + uploadedImage
+            console.log(uploadedImagePath)
+            const latestPostId = result[0].post_id
+            const data2 = [
+                latestPostId,
+                uploadedImagePath
+            ]
+
             await db.query(
-                "insert into posts (TITLE, POST_DESCRIPTION, USER_ID) values (?)",
-                [data]
-                );
-            }
+                "insert into photographic_posts (POSTS_ID, IMAGE_URL) values (?)",
+                [data2]
+            )
+        }
             res.redirect("/new-post");
         });
+
+    router.post("/likes/:id", async function(req, res){
+        const postId = req.params.id
+        const userId = req.session.user.id
+        const data = [
+            postId,
+            userId
+        ]
+
+        const [result] = await db.query("select * from likes where USERS_ID=" 
+        + userId + " and POSTS_ID=" + postId)
+
+        if(result.length == 0){
+            await db.query("insert into likes (POSTS_ID, USERS_ID) values (?)",
+            [data])
+        }
+        else{
+            await db.query("delete from likes where USERS_ID=" 
+            + userId + " and POSTS_ID=" + postId)
+        }
+        return 
+    })
+
+    router.post("/comments/:id", async function(req, res){
+        const postId = req.params.id
+        const userId = req.session.user.id
+        const commentText = req.body.text
+
+        console.log(req.body)
+        const data = [
+            postId,
+            userId,
+            commentText
+        ]
+
+        const result = await db.query(`insert into comments (POST_ID, USER_ID, TEXT) values (?)`,
+        [data])
+        res.json({message: "comment added succesfully"})
+    })
 
 module.exports = router;

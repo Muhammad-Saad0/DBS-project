@@ -16,7 +16,6 @@ function hideShowDiv(val){
 }
 
 function imagePreviewFunc(){
-    console.log("Hello")
     const files = filePickerElement.files; 
     if(!files || files.length === 0){
         imagePreviewElement.style.display = "none"

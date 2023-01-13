@@ -222,7 +222,7 @@ router.post("/signup-user", async function (req, res) {
         [data]
         );
         alert("SUCCESSFULLY REGISTERED")
-        res.redirect("/posts");
+        res.redirect("/login-user");
   });
 
   router.post("/add-post", multer.single("image"), async function(req, res){

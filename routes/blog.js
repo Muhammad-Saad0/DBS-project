@@ -53,8 +53,7 @@ router.get("/login-user",function(req, res){
 router.get("/post-list", async function(req, res){
     const [result] = await db.query(`select P.POST_ID, P.POST_DESCRIPTION,
     P.USER_ID, P.TITLE,P.DATE,pp.image_url,l.users_id as LIKED_BY,U.USERNAME,
-    D.PROFILE_PIC
-    from posts as p
+    D.PROFILE_PIC from posts as p
     left outer join photographic_posts as pp
     on p.post_id = pp.posts_id
     left outer join likes as l
@@ -67,18 +66,86 @@ router.get("/post-list", async function(req, res){
 
 router.get("/user-details/:id", async function(req, res){
     const userId = req.params.id
-    const [result] = await db.query(`select U.USER_ID, U.EMAIL, U.USERNAME, U.GENDER,
-     D.PROFILE_PIC from user as U inner join user_details AS D on u.USER_ID = D.USER_ID WHERE U.USER_ID = ${userId}`)
-     res.json(result)
+    const [result] = await db.query(`Select U.USER_ID, U.EMAIL, U.USERNAME,
+     U.GENDER, D.PROFILE_PIC, D.ABOUT, D.CITY, COUNT(F.FOLLOWING_ID) AS FOLLOWING
+    from user as U inner join user_details AS D on U.USER_ID = D.USER_ID 
+    LEFT JOIN FOLLOWS AS F ON U.USER_ID = F.USER_ID 
+    WHERE U.USER_ID = ${userId}`)
+
+    let followers = await db.query(`SELECT COUNT(FOLLOWER_ID) AS FOLLOWERS FROM followed_by WHERE USER_ID = ${userId}`)
+    followers = followers[0]
+    followers = followers[0]
+    result[0].FOLLOWERS = followers.FOLLOWERS
+    res.json(result)
 })
 
 router.get("/show-comments/:id", async function(req, res){
     const postId = req.params.id
     const result = await db.query(`select C.TEXT, C.DATE, U.USERNAME, U.USER_ID, D.PROFILE_PIC FROM COMMENTS AS C 
-    INNER JOIN USER AS U ON C.USER_ID = U.USER_ID INNER JOIN user_details AS D ON C.USER_ID = D.USER_ID WHERE C.POST_ID =${postId}`)
-    console.log(result[0])
+    INNER JOIN USER AS U ON C.USER_ID = U.USER_ID LEFT JOIN user_details AS D ON C.USER_ID = D.USER_ID WHERE C.POST_ID =${postId}`)
     res.json(result)
 })
+
+router.get("/validate-user/:id", async function(req, res){
+    if(req.session.user.id == req.params.id){
+        res.json(true)
+    }
+    else
+    res.json(false)
+})
+
+router.get("/follow-user/:id", async function(req, res){
+    const userId = req.session.user.id
+    const toFollow = req.params.id
+    await db.query(`INSERT INTO FOLLOWS VALUES(${userId}, ${toFollow})`)
+    res.json()
+})
+
+router.get("/unfollow-user/:id", async function(req, res){
+    const userId = req.session.user.id
+    const toUnFollow = req.params.id
+    await db.query(`DELETE FROM follows WHERE USER_ID = ${userId} and FOLLOWING_ID = ${toUnFollow}`)
+    res.json()
+})
+
+router.get("/edit-user-details/:id", async function(req, res){
+    let user = await db.query(`SELECT * FROM user AS U INNER JOIN user_details AS D ON
+    U.USER_ID = D.USER_ID WHERE U.USER_ID = ${req.params.id}`)
+    user = user[0]
+    res.render(`edit-user-details`, {user: user[0]})
+})
+
+router.get("/follow-check/:id", async function(req, res){
+    let response = await db.query(`SELECT * FROM FOLLOWS WHERE USER_ID = ${req.session.user.id} and FOLLOWING_ID = ${req.params.id}`)
+    response = response[0]
+    res.json(response)
+})
+
+router.get("/count-followers/:id", async function(req, res){
+    const userId = req.params.id
+    console.log(userId)
+    let followers = await db.query(`SELECT count(*) AS FOLLOWERS FROM followed_by WHERE USER_ID = ${userId}`)
+    res.json(followers)
+})
+
+router.post("/edit-user-details", multer.single("user-image"), async function(req, res){
+    const dataFromForm = req.body
+    if(!req.file){
+        await db.query(`update user_details set PHONE = "${dataFromForm.phone}", ABOUT =  "${dataFromForm.about}",
+        STREET = "${dataFromForm.street}", CITY = "${dataFromForm.city}", ZIP =  "${dataFromForm.zip}"
+        where USER_ID = ${req.session.user.id}`)
+        return res.redirect(`/edit-user-details/${req.session.user.id}`)
+    }
+    else{
+        console.log(req.file.filename)
+        const uploadedImage = req.file.filename
+        const uploadedImagePath = "images//" + uploadedImage
+        await db.query(`update user_details set PHONE = "${dataFromForm.phone}", ABOUT =  "${dataFromForm.about}",
+        STREET = "${dataFromForm.street}", CITY = "${dataFromForm.city}", ZIP =  "${dataFromForm.zip}",
+        PROFILE_PIC = "${uploadedImagePath}" where USER_ID = ${req.session.user.id}`)
+        return res.redirect(`/edit-user-details/${req.session.user.id}`)
+    }
+ })
 
 router.post("/logout", function(req, res){
     req.session.user = null;
@@ -98,8 +165,12 @@ router.post("/login-user",async function(req, res){
         req.flash("error_status", "U");
         return res.redirect("/login-user");
     }
+    let response = await db.query(`CALL check_password("${formData.name}", "${formData.password}")`)
+    response = response[0]
+    response = response[0]
+    console.log(response[0].message)
 
-    if(!await bcrypt.compare(formData.password, result[0].PASSWORD)){
+    if(response[0].message == 0){
         console.log("check 2")
         req.flash("error_status", "P");
         return res.redirect("/login-user");
@@ -117,11 +188,10 @@ router.post("/login-user",async function(req, res){
 
 router.post("/signup-user", async function (req, res) {
     const dataFromForm = req.body;
-    const hashedPassword = await bcrypt.hash(dataFromForm.password, 12);
     const data = [
       dataFromForm.email,
       dataFromForm.name,
-      hashedPassword,
+      dataFromForm.password,
       dataFromForm.gender,
     ];
 
@@ -179,7 +249,6 @@ router.post("/signup-user", async function (req, res) {
             );
 
             const uploadedImagePath = "images//" + uploadedImage
-            console.log(uploadedImagePath)
             const latestPostId = result[0].post_id
             const data2 = [
                 latestPostId,

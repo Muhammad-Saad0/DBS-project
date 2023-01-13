@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles/edit-user.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="/scripts/edit-user.js" defer></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row gutters">
+        <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="account-settings">
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <img src="/<%= user.PROFILE_PIC %> " alt="Maxwell Admin">
+                        </div>
+                        <h5 class="user-name"><%= user.USERNAME %> </h5>
+                        <h6 class="user-email"><%= user.EMAIL %> </h6>
+                    </div>
+                    <div class="about">
+                        <h5>About</h5>
+                        <div id="about-div">
+                            <p><%= user.ABOUT %> </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+            <div class="card h-100">
+                <div class="card-body">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <h6 class="mb-2 text-primary">Personal Details</h6>
+                        </div>
+                        <form action="/edit-user-details" method="POST" id="user-details-form" enctype="multipart/form-data">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="text" class="form-control" required value="<%= user.PHONE %> " name="phone" id="phone" placeholder="Enter phone number">
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label for="about">About</label>
+                                <textarea type="text" class="form-control" required name="about" id="about" placeholder="About" maxlength="165"><%= user.ABOUT %></textarea>
+                            </div>
+                        </div>
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <h6 class="mt-3 mb-2 text-primary">Address</h6>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label for="Street">Street</label>
+                                <input type="name" class="form-control" required value="<%= user.STREET %>" name="street" id="street" placeholder="Enter Street">
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="name" class="form-control" required value="<%= user.CITY %>" name="city" id="city" placeholder="Enter City">
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                            <div class="form-group">
+                                <label for="Zip">Zip Code</label>
+                                <input type="text" class="form-control" required name="zip" value="<%= user.ZIP %>" id="zip" placeholder="Zip Code">
+                            </div>
+                            <h6 class="mb-2 text-primary">Profile Picture</h6>
+                            <div >
+                                <input
+                            type="file"
+                            name="user-image"
+                            id="user-image"
+                            accept="images/.png, images/.jpg"
+                            value="<%= user.PROFILE_PIC %> "
+                            />
+                            </div>
+                        </div>
+                    <div class="row gutters">
+                        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                            <div class="text-right">
+                                <button id="submit" name="submit" class="btn btn-primary">Update</button>
+                            </div>
+                        </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -63,3 +63,7 @@ button{
 	justify-content: flex-start;
  }
 
+ .dont-show{
+	display: none;
+ }
+

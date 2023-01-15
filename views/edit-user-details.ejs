@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles/edit-user.css">
+    <link rel="stylesheet" href="/styles/overlays.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <script src="/scripts/edit-user.js" defer></script>
     <title>Document</title>
@@ -88,6 +89,12 @@
                             <div class="text-right">
                                 <button id="submit" name="submit" class="btn btn-primary">Update</button>
                             </div>
+                            <div class="text-right">
+                                <button onclick="openChangePassForm()" id="change-password-btn" name="change-password-btn" class="btn btn-primary">Change Password</button>
+                            </div>
+                            <div class="text-right">
+                                <a href="/post-list" name="change-password-btn" class="btn btn-primary">Back</a>
+                            </div>
                         </form>
                         </div>
                     </div>
@@ -95,6 +102,34 @@
             </div>
             </div>
         </div>
-    </div>
-</body>
-</html>
+        <aside>
+            <div id="backdrop"></div>
+        </aside>
+            <div class="formbg-outer change-password-container" id="change-password-container">
+              <div class="formbg">
+                <h2 class="heading">Change Password</h2>
+                <div class="formbg-inner padding-horizontal--48">
+                  <form id="change-password-form">
+                    <div class="field padding-bottom--24">
+                      <label for="current-password">Current Password</label>
+                      <input type="text" name="current-password" id="current-password" required>
+                    </div>
+                    <div class="field padding-bottom--24">
+                        <label for="new-password">New Password</label>
+                        <input type="text" name="new-password" id="new-password" required>
+                      </div>
+                    <div class="field padding-bottom--24">
+                      <button class="button">SUBMIT</button>
+                    </div>
+                    <div class="field padding-bottom--24">
+                        <button id="close-btn" type="button" class="button">Close</button>
+                      </div>
+                    <div>
+                        <p id="show-error"></p>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+        </body>
+    </html>

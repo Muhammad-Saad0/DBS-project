@@ -5,9 +5,11 @@
     <%- include('includes/head', { title: 'Add new post' }) %>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600' rel='stylesheet' type='text/css'>
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.1.1/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/overlays.css">
+    <link rel="stylesheet" href="/styles/edit-user.css">
     <link rel="stylesheet" href="/styles/user-shared.css">
-    <link rel="stylesheet" href="/styles/forms.css">
-    <link rel="stylesheet" href="/styles/user-login.css">
+    <link rel="stylesheet" href="/styles/overlays.css">
+    <script src="/scripts/login-user.js" defer></script>
     <%- include('includes/header') %>
   </head>
 <body>
@@ -21,6 +23,7 @@
               <input type="text" name="name" id="name" placeholder="UserName" required />
               <label id="icon" for="name"><i class="icon-shield"></i></label>
               <input type="password" name="password" id="password" placeholder="Password" required />
+              <p>Forgot password?<a onclick="openContainer()">click here</a>.</p>
               <button>Sign in</button>
               <div class="spacing"></div>
             </form>
@@ -32,6 +35,25 @@
             <% if(error_status=="P"){ %>
                 <div class="alert_error"><p>Credentials did not match</p></div>
             <% } %> 
+            <aside>
+              <div id="backdrop"></div>
+          </aside>
+            <div class="center" id="forgot-password-container">
+              <h1>Forgot Password</h1>
+              <form  onsubmit="formSubmitted()" id="old-pass-form">
+                <div class="inputbox">
+                  <input type="text" id="forgotpass-username" name="forgotpass-username" required="required">
+                  <span>Username</span>
+                </div>
+                <div class="inputbox">
+                  <input type="text" id="old-password" name="old-password" required="required">
+                  <span>Old Password(any that you remember)</span>
+                </div>
+                <button type="button" onclick="closeContainer()" id="forgotpass-close-btn">close</button>
+                  <button id="forgotpass-submit-btn">Submit</button>
+              </form>
+              <p id="show-status"></p>
+            </div>
           </div>
     </main>
 </body>

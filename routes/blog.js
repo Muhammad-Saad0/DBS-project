@@ -65,6 +65,9 @@ router.get("/post-list", async function(req, res){
 })
 
 router.get("/user-details/:id", async function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
     const userId = req.params.id
     const [result] = await db.query(`Select U.USER_ID, U.EMAIL, U.USERNAME,
      U.GENDER, D.PROFILE_PIC, D.ABOUT, D.CITY, COUNT(F.FOLLOWING_ID) AS FOLLOWING
@@ -108,9 +111,9 @@ router.get("/unfollow-user/:id", async function(req, res){
     res.json()
 })
 
-router.get("/edit-user-details/:id", async function(req, res){
+router.get("/edit-user-details", async function(req, res){
     let user = await db.query(`SELECT * FROM user AS U INNER JOIN user_details AS D ON
-    U.USER_ID = D.USER_ID WHERE U.USER_ID = ${req.params.id}`)
+    U.USER_ID = D.USER_ID WHERE U.USER_ID = ${req.session.user.id}`)
     user = user[0]
     res.render(`edit-user-details`, {user: user[0]})
 })
@@ -128,7 +131,54 @@ router.get("/count-followers/:id", async function(req, res){
     res.json(followers)
 })
 
+router.post(`/check-old-password`, async function(req, res){
+    const body = req.body
+    console.log(body.oldPassword)
+    let response = await db.query(`CALL check_old_password("${body.username}", "${body.oldPassword}")`)
+    response = response[0]
+    response = response[0]
+    res.json(response[0])
+})
+
+router.post(`/update-forgotten-password`, async function(req, res){
+    const body = req.body
+    const username = req.body.username
+
+    await db.query(`update user set PASSWORD = "${body.oldPassword}" where username = "${username}"`)
+    res.json()
+})
+
+router.post(`/check-username`, async function(req, res){
+    const body = req.body
+    let response = await db.query(`CALL check_username("${body.username}")`)
+    response = response[0]
+    response = response[0]
+    console.log(response[0])
+    res.json(response[0])
+})
+
+router.post(`/update-password`, async function(req, res){
+    const body = req.body
+    const userId = req.session.user.id
+
+    db.query(`update user set PASSWORD = ${body.newPassword} where USER_ID = ${userId}`)
+    res.json()
+})
+
+router.post("/check-current-password", async function(req, res){
+    const body = req.body
+    const userId = req.session.user.id
+
+    let response = await db.query(`CALL check_password2("${userId}", "${body.currentPassword}")`)
+    response = response[0]
+    response = response[0]
+    res.json(response[0])
+})
+
 router.post("/edit-user-details", multer.single("user-image"), async function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
     const dataFromForm = req.body
     if(!req.file){
         await db.query(`update user_details set PHONE = "${dataFromForm.phone}", ABOUT =  "${dataFromForm.about}",
@@ -147,7 +197,7 @@ router.post("/edit-user-details", multer.single("user-image"), async function(re
     }
  })
 
-router.post("/logout", function(req, res){
+router.get("/logout", function(req, res){
     req.session.user = null;
     return res.redirect("/login-user");
 });
@@ -182,7 +232,7 @@ router.post("/login-user",async function(req, res){
         email: existingUser.EMAIL
     }
     req.session.save(function(){
-        return res.redirect("/new-post");
+        return res.redirect("/post-list");
     })
 });
 

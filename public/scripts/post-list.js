@@ -8,6 +8,23 @@ const commentPopUpElement = document.getElementById("comment-popup")
 const userDetailsContainer = document.getElementById("profile-card")
 const userDetailsBtns = document.getElementsByClassName("user-details-btns")
 
+$(document).ready(function(){
+  $('.menu-close').hide();
+
+  $('.menu').click(function(){
+      $('.menu-panel').toggleClass('show');
+      $('.menu-background').toggleClass('show');
+      $('.menu').hide();
+      $('.menu-close').show();
+  });
+  $('.menu-close').click(function(){
+      $('.menu-panel').removeClass('show');
+      $('.menu-background').removeClass('show');
+      $('.menu').show();
+      $('.menu-close').hide();
+  });
+});
+
 function btnToggle(event){
     const btn = event.target
     const postId = btn.dataset.postid

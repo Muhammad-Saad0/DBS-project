@@ -282,6 +282,7 @@ a.ssolink {
   width: 400px;
   left: 590px;
   display: none;
+  z-index: 1000001;
 }
 
 .heading{

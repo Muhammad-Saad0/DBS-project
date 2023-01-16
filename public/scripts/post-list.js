@@ -82,7 +82,7 @@ function createCommentsList(comments) {
     if(validate){
       onclick=``
       buttonText = "Edit Profile"
-      href = `/edit-user-details/${user.USER_ID}`
+      href = `/edit-user-details`
     }
     if(user.PROFILE_PIC){
       container.innerHTML = `<div class="row py-5 px-4" id="profile-card">

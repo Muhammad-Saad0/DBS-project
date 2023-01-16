@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs")
 const Multer = require("multer");
 
 const db = require("../Database/Database");
-const {isEmailValid} = require("../Utilities/Email")
+const {isEmailValid, sendMail, sendVerificationMail} = require("../Utilities/Email")
 
 const router = express.Router();
 
@@ -38,7 +38,7 @@ router.get("/posts",async function(req, res){
 });
 
 router.get("/new-post",function(req, res){
-    if(!req.session.user){
+    if(!req.session.user.authenticated){
         return res.status(404).render("404")
     }
     res.render("create-post");
@@ -51,6 +51,9 @@ router.get("/login-user",function(req, res){
 
 //-------------------------------------------------------------------//
 router.get("/post-list", async function(req, res){
+    if(!req.session.user.authenticated){
+        return res.status(404).render("404")
+    }
     const [result] = await db.query(`select P.POST_ID, P.POST_DESCRIPTION,
     P.USER_ID, P.TITLE,P.DATE,pp.image_url,l.users_id as LIKED_BY,U.USERNAME,
     D.PROFILE_PIC from posts as p
@@ -60,12 +63,13 @@ router.get("/post-list", async function(req, res){
     on l.posts_id = p.post_id
     inner join user as U on U.USER_ID = P.USER_ID
     inner join user_details as D on D.USER_ID = P.USER_ID`)
+    console.log(result)
     res.render("post-list", {posts: result,
     loggedInUserId: req.session.user.id});
 })
 
 router.get("/user-details/:id", async function(req, res){
-    if(!req.session.user){
+    if(!req.session.user.authenticated){
         return res.status(404).render("404")
     }
     const userId = req.params.id
@@ -131,6 +135,15 @@ router.get("/count-followers/:id", async function(req, res){
     res.json(followers)
 })
 
+router.get(`/verify/:uniqueString`, async function(req, res){
+    const uniqueString = req.params.uniqueString
+    let response = await db.query(`select * from unique_string where unique_string = "${uniqueString}"`)
+    if(response[0]){
+        req.session.user.authenticated = true
+        res.redirect("/post-list")
+    }
+})
+
 router.post(`/check-old-password`, async function(req, res){
     const body = req.body
     console.log(body.oldPassword)
@@ -184,7 +197,6 @@ router.post("/edit-user-details", multer.single("user-image"), async function(re
         await db.query(`update user_details set PHONE = "${dataFromForm.phone}", ABOUT =  "${dataFromForm.about}",
         STREET = "${dataFromForm.street}", CITY = "${dataFromForm.city}", ZIP =  "${dataFromForm.zip}"
         where USER_ID = ${req.session.user.id}`)
-        return res.redirect(`/edit-user-details/${req.session.user.id}`)
     }
     else{
         console.log(req.file.filename)
@@ -193,8 +205,8 @@ router.post("/edit-user-details", multer.single("user-image"), async function(re
         await db.query(`update user_details set PHONE = "${dataFromForm.phone}", ABOUT =  "${dataFromForm.about}",
         STREET = "${dataFromForm.street}", CITY = "${dataFromForm.city}", ZIP =  "${dataFromForm.zip}",
         PROFILE_PIC = "${uploadedImagePath}" where USER_ID = ${req.session.user.id}`)
-        return res.redirect(`/edit-user-details/${req.session.user.id}`)
     }
+    return res.redirect(`/edit-user-details`)
  })
 
 router.get("/logout", function(req, res){
@@ -229,7 +241,8 @@ router.post("/login-user",async function(req, res){
     let existingUser = result[0]
     req.session.user = {
         id: existingUser.USER_ID,
-        email: existingUser.EMAIL
+        email: existingUser.EMAIL,
+        authenticated: true
     }
     req.session.save(function(){
         return res.redirect("/post-list");
@@ -247,7 +260,7 @@ router.post("/signup-user", async function (req, res) {
 
     let email = (dataFromForm.email).trim()
     email = email.toLowerCase()
-    const valid = await isEmailValid(email);
+    const valid= await isEmailValid(email);
     if(!valid){
         req.flash("email_error",'I')
         return res.redirect("/")
@@ -293,7 +306,7 @@ router.post("/signup-user", async function (req, res) {
         const [result] = await db.query(
             `select post_id
             from posts
-            where user_id = 2
+            where user_id = ${req.session.user.id}
             order by DATE DESC
             limit 1`
             );
@@ -350,6 +363,21 @@ router.post("/signup-user", async function (req, res) {
         const result = await db.query(`insert into comments (POST_ID, USER_ID, TEXT) values (?)`,
         [data])
         res.json({message: "comment added succesfully"})
+    })
+
+    router.post("/send-verification-mail", async function(req, res){
+        const body = req.body
+        await sendVerificationMail(body.validEmail, body.uniqueString)
+        db.query(`insert into unique_string values ("${body.uniqueString}")`)
+        let response = await db.query(`select USER_ID from user where username = "${body.username}"`)
+        response = response[0]
+        console.log(response[0].USER_ID)
+        req.session.user = {
+            id: response[0].USER_ID,
+            email: body.validEmail,
+            authenticated: false
+        }
+        res.json()
     })
 
 module.exports = router;

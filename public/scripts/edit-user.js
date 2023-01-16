@@ -57,6 +57,7 @@ function closeChangePassword(){
     event.preventDefault()
     backDropElement.style.display = "none"
     changePasswordContainer.style.display = "none"
+    showError.textContent = ""
 }
 
 changePassForm.addEventListener("submit", changePassword, false)

@@ -227,12 +227,7 @@ button:hover{
 }
 
 .testbox{
-  height: 320px;
-}
-
-button{
-  margin-bottom: 10px;
-  margin-right: 20px;
+  height: auto;
 }
 
 .spacing{
@@ -309,4 +304,15 @@ body{
 
 #forgot-password-container{
   display: none;
+  z-index: 100000000;
+}
+
+#forgot-password-container2{
+  display: none;
+  z-index: 100000000;
+}
+
+button{
+  margin-bottom: 20px;
+  margin-right: 20px;
 }

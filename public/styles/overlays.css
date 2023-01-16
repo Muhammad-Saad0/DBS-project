@@ -33,6 +33,7 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
   display: none;
+  z-index: 100000;
 }
 
 .modal {
@@ -47,7 +48,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   display: none;
   border-radius: 10px;
-  justify-content: center
+  justify-content: center;
+  z-index: 100001;
 }
 
 #comment-popup{

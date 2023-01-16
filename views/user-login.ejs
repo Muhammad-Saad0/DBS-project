@@ -46,13 +46,30 @@
                   <span>Username</span>
                 </div>
                 <div class="inputbox">
-                  <input type="text" id="old-password" name="old-password" required="required">
+                  <input type="password" id="old-password" name="old-password" required="required">
                   <span>Old Password(any that you remember)</span>
                 </div>
                 <button type="button" onclick="closeContainer()" id="forgotpass-close-btn">close</button>
                   <button id="forgotpass-submit-btn">Submit</button>
               </form>
+              <a onclick="openContainer2()">use email to login</a>
               <p id="show-status"></p>
+            </div>
+            <div class="center" id="forgot-password-container2">
+              <h1>Forgot Password</h1>
+              <form  onsubmit="form2Submitted()" id="old-pass-form2">
+                <div class="inputbox">
+                  <input type="text" id="forgotpass-username2" name="forgotpass-username" required="required">
+                  <span>Username</span>
+                </div>
+                <div class="inputbox">
+                  <input type="text" id="valid-email" name="valid-email" required="required">
+                  <span>Email(valid)</span>
+                </div>
+                <button type="button" onclick="closeContainer()">close</button>
+                  <button id="forgotpass-submit-btn2">Submit</button>
+              </form>
+              <p id="show-status2"></p>
             </div>
           </div>
     </main>

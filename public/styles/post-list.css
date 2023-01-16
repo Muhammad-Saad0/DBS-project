@@ -17,6 +17,7 @@ body {
 	overflow: hidden;
 	box-shadow: 0 2px 30px rgba(0, 0, 0, 0.1);
 	transition: all 0.2s;
+	z-index: 100001;
 }
 .post-block img.author-img {
 	height: 45px;
@@ -153,5 +154,17 @@ button{
   #top-nav-bar{
 	position: fixed;
 	z-index: 100000000;
+  }
+
+  #profile-card{
+	z-index: 100001;
+  }
+
+  #change-password-container{
+	z-index: 100001;
+  }
+
+  #change-password-container2{
+	z-index: 100001;
   }
 

@@ -316,3 +316,7 @@ button{
   margin-bottom: 20px;
   margin-right: 20px;
 }
+
+a:hover{
+  cursor: pointer;
+}

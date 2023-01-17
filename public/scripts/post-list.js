@@ -7,6 +7,8 @@ const backDropElement = document.getElementById("backdrop")
 const commentPopUpElement = document.getElementById("comment-popup")
 const userDetailsContainer = document.getElementById("profile-card")
 const userDetailsBtns = document.getElementsByClassName("user-details-btns")
+const confirmationBoxElement = document.getElementById("confirmation-box")
+const deleteBtns = document.getElementsByClassName("delete-btns")
 
 $(document).ready(function(){
   $('.menu-close').hide();
@@ -38,6 +40,49 @@ function btnToggle(event){
     fetch(`/likes/${postId}`,{
         method: "POST",
     })
+}
+
+function deleteConfirmationPopup(data){
+  confirmationBoxElement.innerHTML = `
+  <p>Post will be deleted</p>
+		<div class="text-right">
+    <button class="btn" onclick="closeDeleteContainer()">Cancel</button>
+		  <a href="/delete-post/${data.postid}" class="btn btn-primary">Ok</a>
+		</div>`
+    confirmationBoxElement.style.display = "block"
+    backDropElement.style.display = "block"
+}
+
+async function deletePostClicked(){
+    event.preventDefault()
+    const postid = event.target.dataset.postid
+    const data = {postid: postid}
+
+    console.log(postid)
+    let response = await fetch(`/delete-post`,{
+      method: "POST",
+      headers: {
+          'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(data)
+  })
+}
+
+function closeDeleteContainer(){
+  confirmationBoxElement.style.display = "none"
+  backDropElement.style.display = "none"
+}
+
+function cannotDeletePopup(){
+  confirmationBoxElement.innerHTML = `
+  <p>Can't delete, not your post</p>
+		<div class="text-right">
+		  <button class="btn btn-primary" onclick="closeDeleteContainer()">Ok</button>
+		</div>`
+    console.log(confirmationBoxElement)
+    confirmationBoxElement.style.display = "block"
+    backDropElement.style.display = "block"
 }
 
 function createCommentsList(comments) {
@@ -158,6 +203,33 @@ function createCommentsList(comments) {
   }
 
   //-----------------------------------------------------//
+  async function deletePost(){
+    const btn = event.target
+    event.preventDefault()
+
+    console.log(`This is post id ${btn.dataset.postid}`)
+    const data = { 
+      userid: btn.dataset.userid,
+      postid: btn.dataset.postid
+     }
+    
+    let response = await fetch(`/delete-check`,{
+      method: "POST",
+      headers: {
+          'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(data)
+  })
+  response = await (response.json())
+  if(response == 0){
+    cannotDeletePopup()
+  }
+  if(response == 1){
+    deleteConfirmationPopup(data)
+  }
+}
+
   async function openUserDetails(val){
     event.preventDefault()
     let validate = await fetch(`/validate-user/${val}`)
@@ -272,6 +344,10 @@ for(const viewCommentsElement of viewCommentsElements){
 
 for(const btn of userDetailsBtns){
   btn.addEventListener("click", userDetailsBtnPressed, false)
+}
+
+for(const btn of deleteBtns){
+  btn.addEventListener("click", deletePost, false)
 }
 
 backDropElement.addEventListener("click", closeBackDrop, false)

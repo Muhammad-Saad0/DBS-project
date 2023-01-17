@@ -13,7 +13,7 @@
           </div>
           <div>
             <h5 class="mb-0"><a href="" class="text-dark user-details-btns" data-userid="<%= post.USER_ID%> "><%= post.USERNAME %> </a></h5>
-            <p class="mb-0 text-muted">5m</p>
+            <p class="mb-0 text-muted"><%= post.DATE %> </p>
           </div>
         </div>
         <div class="post-block__user-options">
@@ -22,8 +22,7 @@
                 <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
-            <a class="dropdown-item text-dark" href="#!"><i class="fa fa-pencil mr-1"></i>Edit</a>
-            <a class="dropdown-item text-danger" href="#!"><i class="fa fa-trash mr-1"></i>Delete</a>
+            <a class="dropdown-item text-danger delete-btns" data-postid="<%= post.POST_ID %>" data-userid="<%= post.USER_ID %> "><i class="fa fa-trash mr-1"></i>Delete</a>
           </div>
         </div>
       </div>

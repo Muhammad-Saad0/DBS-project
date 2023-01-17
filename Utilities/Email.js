@@ -5,7 +5,7 @@ var nodemailer = require('nodemailer');
 
 async function sendVerificationMail(email ,uniqueString){
 
-  console.log("point 1")
+  console.log(email)
 
   var transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -13,7 +13,7 @@ async function sendVerificationMail(email ,uniqueString){
     secure: false, // true for 465, false for other ports
     auth: {
         user: "doritozz349@gmail.com", // generated ethereal user
-        pass: "cfrqisetxhucnihv"  // generated ethereal password
+        pass: "yzzdmkdmglyxsais"  // generated ethereal password
     }
 });
 

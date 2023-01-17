@@ -38,6 +38,9 @@ router.get("/posts",async function(req, res){
 });
 
 router.get("/new-post",function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
     if(!req.session.user.authenticated){
         return res.status(404).render("404")
     }
@@ -51,24 +54,39 @@ router.get("/login-user",function(req, res){
 
 //-------------------------------------------------------------------//
 router.get("/post-list", async function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
     if(!req.session.user.authenticated){
         return res.status(404).render("404")
     }
     const [result] = await db.query(`select P.POST_ID, P.POST_DESCRIPTION,
-    P.USER_ID, P.TITLE,P.DATE,pp.image_url,l.users_id as LIKED_BY,U.USERNAME,
+    P.USER_ID, P.TITLE,P.DATE,pp.image_url, U.USERNAME,
     D.PROFILE_PIC from posts as p
     left outer join photographic_posts as pp
     on p.post_id = pp.posts_id
-    left outer join likes as l
-    on l.posts_id = p.post_id
     inner join user as U on U.USER_ID = P.USER_ID
     inner join user_details as D on D.USER_ID = P.USER_ID`)
-    console.log(result)
+
+    for(const post of result){
+        let response = await db.query(`select * from likes where POSTS_ID = ${post.POST_ID} and USERS_ID = ${req.session.user.id}`)
+        response = response[0]
+        post.DATE = new Date(post.DATE).toLocaleString()
+        if(response[0]){
+            post.LIKED_BY = req.session.user.id
+        }
+        else{
+            post.LIKED_BY = 0
+        }
+    }
     res.render("post-list", {posts: result,
     loggedInUserId: req.session.user.id});
 })
 
 router.get("/user-details/:id", async function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
     if(!req.session.user.authenticated){
         return res.status(404).render("404")
     }
@@ -138,10 +156,64 @@ router.get("/count-followers/:id", async function(req, res){
 router.get(`/verify/:uniqueString`, async function(req, res){
     const uniqueString = req.params.uniqueString
     let response = await db.query(`select * from unique_string where unique_string = "${uniqueString}"`)
-    if(response[0]){
-        req.session.user.authenticated = true
-        res.redirect("/post-list")
+    if(req.session.user){
+        if(response[0]){
+            req.session.user.authenticated = true
+            res.redirect("/post-list")
+        }
     }
+    else{
+        return res.status(404).render("404")
+    }
+})
+
+router.get(`/delete-post/:postid`, async function(req, res){
+    const postid = req.params.postid
+    console.log(postid)
+
+    await db.query(`delete from posts where post_id = ${postid}`)
+    res.redirect("/post-list")
+})
+
+router.get("/my-posts", async function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
+    if(!req.session.user.authenticated){
+        return res.status(404).render("404")
+    }
+    const [result] = await db.query(`select P.POST_ID, P.POST_DESCRIPTION,
+    P.USER_ID, P.TITLE,P.DATE,pp.image_url, U.USERNAME,
+    D.PROFILE_PIC from posts as p
+    left outer join photographic_posts as pp
+    on p.post_id = pp.posts_id
+    inner join user as U on U.USER_ID = P.USER_ID
+    inner join user_details as D on D.USER_ID = P.USER_ID where P.USER_ID = ${req.session.user.id}`)
+
+    for(const post of result){
+        let response = await db.query(`select * from likes where POSTS_ID = ${post.POST_ID} and USERS_ID = ${req.session.user.id}`)
+        response = response[0]
+        post.DATE = new Date(post.DATE).toLocaleString()
+        if(response[0]){
+            post.LIKED_BY = req.session.user.id
+        }
+        else{
+            post.LIKED_BY = 0
+        }
+    }
+    res.render("post-list", {posts: result,
+    loggedInUserId: req.session.user.id});
+})
+
+router.post(`/delete-check`, async function(req, res){
+    const body = req.body
+    const userid = body.userid
+
+    let response = 0;
+    if(req.session.user.id == userid){
+        response = 1;
+    }
+    res.json(response)
 })
 
 router.post(`/check-old-password`, async function(req, res){
@@ -174,7 +246,7 @@ router.post(`/update-password`, async function(req, res){
     const body = req.body
     const userId = req.session.user.id
 
-    db.query(`update user set PASSWORD = ${body.newPassword} where USER_ID = ${userId}`)
+    db.query(`update user set PASSWORD = "${body.newPassword}" where USER_ID = "${userId}"`)
     res.json()
 })
 
@@ -189,6 +261,9 @@ router.post("/check-current-password", async function(req, res){
 })
 
 router.post("/edit-user-details", multer.single("user-image"), async function(req, res){
+    if(!req.session.user){
+        return res.status(404).render("404")
+    }
     if(!req.session.user){
         return res.status(404).render("404")
     }
@@ -289,7 +364,7 @@ router.post("/signup-user", async function (req, res) {
   });
 
   router.post("/add-post", multer.single("image"), async function(req, res){
-    const uploadedImage = req.file.filename;
+    const uploadedImage = req.file;
     const postData = req.body;
 
     const data = [
@@ -311,7 +386,7 @@ router.post("/signup-user", async function (req, res) {
             limit 1`
             );
 
-            const uploadedImagePath = "images//" + uploadedImage
+            const uploadedImagePath = "images//" + uploadedImage.filename
             const latestPostId = result[0].post_id
             const data2 = [
                 latestPostId,

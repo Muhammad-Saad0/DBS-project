@@ -168,3 +168,18 @@ button{
 	z-index: 100001;
   }
 
+  .popup {
+	width: 33.333333%;
+	padding: 15px;
+	left: 0;
+	margin-left: 33.333333%;
+	border: 1px solid #ccc;
+	border-radius: 10px;
+	background: white;
+	position: fixed;
+	top: 30%;
+	box-shadow: 5px 5px 5px #000;
+	z-index: 100001;
+	display: none;
+  }
+
